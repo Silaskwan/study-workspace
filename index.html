@@ -1018,6 +1018,7 @@ function sample(arr, n){
 
 // Build one multiple-choice quiz question from a vocab entry, drawing
 // wrong-answer options from the rest of the pool.
+// QUESTION TYPE 1: "What does this mean?"
 function vocabToQuizQuestion(entry, pool, numOptions){
   numOptions = numOptions || 4;
   const correct = entry.meanings[0];
@@ -1034,16 +1035,251 @@ function vocabToQuizQuestion(entry, pool, numOptions){
   };
 }
 
-// Build a full quiz for a chapter/tag in one call. Skips entries with
-// no meanings yet (nothing to quiz on) and entries where there
-// aren't enough other words to build distractor options from.
-function vocabToQuiz(tag, list, numOptions){
+/* ----------------------------------------------------------------
+   Kana mutation rules — used to build plausible-but-wrong readings
+   for the "pick the correct reading" question type. Each function
+   returns a mutated kana string, or null if the input has no valid
+   place to apply that particular mutation (e.g. removeDakuten on a
+   word with no voiced sounds). Mutations are mora-aware (a digraph
+   like きょ is treated as one unit, not two characters) so results
+   never split a real syllable apart.
+   ---------------------------------------------------------------- */
+
+const HIRA_VOWEL = {
+  'あ':'a','い':'i','う':'u','え':'e','お':'o',
+  'か':'a','き':'i','く':'u','け':'e','こ':'o',
+  'が':'a','ぎ':'i','ぐ':'u','げ':'e','ご':'o',
+  'さ':'a','し':'i','す':'u','せ':'e','そ':'o',
+  'ざ':'a','じ':'i','ず':'u','ぜ':'e','ぞ':'o',
+  'た':'a','ち':'i','つ':'u','て':'e','と':'o',
+  'だ':'a','ぢ':'i','づ':'u','で':'e','ど':'o',
+  'な':'a','に':'i','ぬ':'u','ね':'e','の':'o',
+  'は':'a','ひ':'i','ふ':'u','へ':'e','ほ':'o',
+  'ば':'a','び':'i','ぶ':'u','べ':'e','ぼ':'o',
+  'ぱ':'a','ぴ':'i','ぷ':'u','ぺ':'e','ぽ':'o',
+  'ま':'a','み':'i','む':'u','め':'e','も':'o',
+  'や':'a','ゆ':'u','よ':'o',
+  'ら':'a','り':'i','る':'u','れ':'e','ろ':'o',
+  'わ':'a','を':'o',
+  'ゃ':'a','ゅ':'u','ょ':'o'
+};
+const HIRA_DAKUTEN_MAP = {'か':'が','き':'ぎ','く':'ぐ','け':'げ','こ':'ご','さ':'ざ','し':'じ','す':'ず','せ':'ぜ','そ':'ぞ','た':'だ','ち':'ぢ','つ':'づ','て':'で','と':'ど','は':'ば','ひ':'び','ふ':'ぶ','へ':'べ','ほ':'ぼ'};
+const KATA_DAKUTEN_MAP = {'カ':'ガ','キ':'ギ','ク':'グ','ケ':'ゲ','コ':'ゴ','サ':'ザ','シ':'ジ','ス':'ズ','セ':'ゼ','ソ':'ゾ','タ':'ダ','チ':'ヂ','ツ':'ヅ','テ':'デ','ト':'ド','ハ':'バ','ヒ':'ビ','フ':'ブ','ヘ':'ベ','ホ':'ボ'};
+const HIRA_SOKUON_NEXT = ['か','き','く','け','こ','さ','し','す','せ','そ','た','ち','つ','て','と','ぱ','ぴ','ぷ','ぺ','ぽ'];
+const KATA_SOKUON_NEXT = ['カ','キ','ク','ケ','コ','サ','シ','ス','セ','ソ','タ','チ','ツ','テ','ト','パ','ピ','プ','ペ','ポ'];
+const SMALL_Y = ['ゃ','ゅ','ょ','ャ','ュ','ョ'];
+const CHOON_CHAR = {a:'あ',i:'い',u:'う',e:'え',o:'お'};
+
+function isKatakana(str){ return /[\u30A0-\u30FF]/.test(str); }
+
+// Split into morae, keeping a base kana + small ゃ/ゅ/ょ as one unit
+// (e.g. きょ stays together) so mutations never land mid-syllable.
+function tokenizeMorae(kana){
+  const chars = kana.split('');
+  const morae = [];
+  for(let i = 0; i < chars.length; i++){
+    if(SMALL_Y.includes(chars[i + 1])){
+      morae.push(chars[i] + chars[i + 1]);
+      i++;
+    } else {
+      morae.push(chars[i]);
+    }
+  }
+  return morae;
+}
+function moraVowel(mora){ return HIRA_VOWEL[mora[mora.length - 1]]; }
+
+// MUTATION 1: drop a small っ/ッ or a long vowel.
+function dropSokuon(kana){
+  const target = isKatakana(kana) ? 'ッ' : 'っ';
+  const i = kana.indexOf(target);
+  return i === -1 ? null : kana.slice(0, i) + kana.slice(i + 1);
+}
+function dropChoon(kana){
+  if(isKatakana(kana)){
+    const i = kana.indexOf('ー');
+    return i === -1 ? null : kana.slice(0, i) + kana.slice(i + 1);
+  }
+  const morae = tokenizeMorae(kana);
+  for(let i = 1; i < morae.length; i++){
+    if(morae[i].length !== 1 || morae[i - 1] === 'ん' || morae[i - 1] === 'っ') continue;
+    const v = moraVowel(morae[i - 1]);
+    const isChoonMarker = morae[i] === CHOON_CHAR[v] || (v === 'o' && morae[i] === 'う') || (v === 'e' && morae[i] === 'い');
+    if(isChoonMarker){ morae.splice(i, 1); return morae.join(''); }
+  }
+  return null;
+}
+function dropSokuonOrChoon(kana){
+  const order = Math.random() < 0.5 ? [dropSokuon, dropChoon] : [dropChoon, dropSokuon];
+  for(const fn of order){ const r = fn(kana); if(r) return r; }
+  return null;
+}
+
+// MUTATION 2: add an extra small っ/ッ or long vowel in a position
+// that's grammatically valid, so it looks natural rather than random.
+function addSokuon(kana){
+  const kata = isKatakana(kana);
+  const nextSet = kata ? KATA_SOKUON_NEXT : HIRA_SOKUON_NEXT;
+  const smallTsu = kata ? 'ッ' : 'っ';
+  const morae = kata ? kana.split('') : tokenizeMorae(kana);
+  const candidates = [];
+  for(let i = 1; i < morae.length; i++){
+    if(nextSet.includes(morae[i][0]) && morae[i - 1] !== smallTsu) candidates.push(i);
+  }
+  if(!candidates.length) return null;
+  const i = candidates[Math.floor(Math.random() * candidates.length)];
+  morae.splice(i, 0, smallTsu);
+  return morae.join('');
+}
+function addChoon(kana){
+  if(isKatakana(kana)){
+    const chars = kana.split('');
+    const candidates = [];
+    for(let i = 0; i < chars.length; i++){ if(chars[i] !== 'ー' && chars[i + 1] !== 'ー') candidates.push(i); }
+    if(!candidates.length) return null;
+    const i = candidates[Math.floor(Math.random() * candidates.length)];
+    chars.splice(i + 1, 0, 'ー');
+    return chars.join('');
+  }
+  const morae = tokenizeMorae(kana);
+  const candidates = [];
+  for(let i = 0; i < morae.length; i++){
+    if(morae[i] === 'ん' || morae[i] === 'っ') continue;
+    const v = moraVowel(morae[i]);
+    const nextIsAlreadyChoon = morae[i + 1] && morae[i + 1].length === 1 &&
+      (morae[i + 1] === CHOON_CHAR[v] || (v === 'o' && morae[i + 1] === 'う') || (v === 'e' && morae[i + 1] === 'い'));
+    if(!nextIsAlreadyChoon) candidates.push(i);
+  }
+  if(!candidates.length) return null;
+  const i = candidates[Math.floor(Math.random() * candidates.length)];
+  const v = moraVowel(morae[i]);
+  let insertChar;
+  if(v === 'o') insertChar = Math.random() < 0.85 ? 'う' : 'お';
+  else if(v === 'e') insertChar = Math.random() < 0.7 ? 'い' : 'え';
+  else insertChar = CHOON_CHAR[v];
+  morae.splice(i + 1, 0, insertChar);
+  return morae.join('');
+}
+function addSokuonOrChoon(kana){
+  const order = Math.random() < 0.5 ? [addSokuon, addChoon] : [addChoon, addSokuon];
+  for(const fn of order){ const r = fn(kana); if(r) return r; }
+  return null;
+}
+
+// MUTATION 3: add dakuten to an eligible unvoiced character.
+function addDakuten(kana){
+  const map = isKatakana(kana) ? KATA_DAKUTEN_MAP : HIRA_DAKUTEN_MAP;
+  const chars = kana.split('');
+  const candidates = [];
+  for(let i = 0; i < chars.length; i++){ if(map[chars[i]]) candidates.push(i); }
+  if(!candidates.length) return null;
+  const i = candidates[Math.floor(Math.random() * candidates.length)];
+  chars[i] = map[chars[i]];
+  return chars.join('');
+}
+
+// MUTATION 4: remove dakuten from a voiced character.
+function removeDakuten(kana){
+  const map = isKatakana(kana) ? KATA_DAKUTEN_MAP : HIRA_DAKUTEN_MAP;
+  const reverse = {};
+  Object.keys(map).forEach(k => { reverse[map[k]] = k; });
+  const chars = kana.split('');
+  const candidates = [];
+  for(let i = 0; i < chars.length; i++){ if(reverse[chars[i]]) candidates.push(i); }
+  if(!candidates.length) return null;
+  const i = candidates[Math.floor(Math.random() * candidates.length)];
+  chars[i] = reverse[chars[i]];
+  return chars.join('');
+}
+
+// QUESTION TYPE 4: shown the meaning, pick the correct reading out of
+// 4 kana options. Wrong options are built from the 4 mutation rules
+// above; if a short word can't produce 3 distinct mutations, the
+// remaining option slots fall back to other real words' readings.
+function vocabToReadingMutationQuestion(entry, pool){
+  const correct = entry.kana;
+  const mutators = shuffle([dropSokuonOrChoon, addSokuonOrChoon, addDakuten, removeDakuten]);
+  const wrongSet = new Set();
+  for(const fn of mutators){
+    if(wrongSet.size >= 3) break;
+    const r = fn(correct);
+    if(r && r !== correct) wrongSet.add(r);
+  }
+  if(wrongSet.size < 3){
+    const others = shuffle(pool.filter(e => e.id !== entry.id && e.kana !== correct).map(e => e.kana));
+    for(const k of others){
+      if(wrongSet.size >= 3) break;
+      wrongSet.add(k);
+    }
+  }
+  const options = shuffle([correct, ...[...wrongSet].slice(0, 3)]);
+  return {
+    type: 'mc',
+    q: 'Which is the correct reading for "' + entry.meanings[0] + '"?',
+    options,
+    answer: options.indexOf(correct)
+  };
+}
+
+// QUESTION TYPE 2: type in the furigana. Prompted with the meaning
+// half the time, the kanji the other half (falls back to meaning-only
+// if the word has no kanji).
+function vocabToFuriganaTypeQuestion(entry){
+  const useKanjiPrompt = !!entry.kanji && Math.random() < 0.5;
+  const prompt = useKanjiPrompt ? entry.kanji : entry.meanings[0];
+  return {
+    type: 'text',
+    q: 'Type the furigana (reading) for "' + prompt + '"',
+    answer: entry.kana
+  };
+}
+
+// QUESTION TYPE 3: shown a kanji word with a furigana reading, judge
+// whether they actually match. Wrong pairings borrow another real
+// word's reading (rather than a mutated one) so this tests "do these
+// two match" as a distinct skill from the reading-mutation question.
+// Only used for words that have a kanji form.
+function vocabToKanjiFuriganaMatchQuestion(entry, pool){
+  const isCorrectPairing = Math.random() < 0.5;
+  let shown = entry.kana;
+  if(!isCorrectPairing){
+    const others = pool.filter(e => e.id !== entry.id && e.kana !== entry.kana);
+    const wrong = others[Math.floor(Math.random() * others.length)];
+    shown = wrong ? wrong.kana : mutateFallback(entry.kana);
+  }
+  return {
+    type: 'mc',
+    q: entry.kanji + ' \u2014 is "' + shown + '" the correct furigana for this?',
+    options: ['Correct', 'Incorrect'],
+    answer: isCorrectPairing ? 0 : 1
+  };
+}
+function mutateFallback(kana){
+  return addDakuten(kana) || dropSokuonOrChoon(kana) || kana + kana[0];
+}
+
+// Build a full quiz for a chapter/tag in one call. For each word,
+// randomly picks one of the 4 question types above (only from the
+// ones that word is eligible for — e.g. kanji-match is skipped for
+// words with no kanji). Skips words with no meanings yet entirely.
+const QUESTION_BUILDERS = [
+  { eligible: () => true, build: (e, pool) => vocabToQuizQuestion(e, pool) },
+  { eligible: () => true, build: (e) => vocabToFuriganaTypeQuestion(e) },
+  { eligible: e => !!e.kanji, build: (e, pool) => vocabToKanjiFuriganaMatchQuestion(e, pool) },
+  { eligible: e => e.kana.length >= 2, build: (e, pool) => vocabToReadingMutationQuestion(e, pool) }
+];
+function vocabToQuiz(tag, list){
   const pool = list || VOCAB_JAPANESE;
   const chapterEntries = vocabByTag(tag, pool).filter(e => e.meanings.length);
   return chapterEntries
     .filter(() => pool.filter(e => e.meanings.length).length >= 4)
-    .map(entry => vocabToQuizQuestion(entry, pool, numOptions));
+    .map(entry => {
+      const eligible = QUESTION_BUILDERS.filter(qb => qb.eligible(entry));
+      const chosen = eligible[Math.floor(Math.random() * eligible.length)];
+      return chosen.build(entry, pool);
+    });
 }
+
 
 // Simple HTML vocab table for a chapter/tag — a reasonable default
 // lesson "content" block, until real notes/grammar are written.
@@ -1077,6 +1313,9 @@ if(typeof window !== 'undefined'){
   window.vocabToFlashcard = vocabToFlashcard;
   window.vocabToFlashcardDeck = vocabToFlashcardDeck;
   window.vocabToQuizQuestion = vocabToQuizQuestion;
+  window.vocabToFuriganaTypeQuestion = vocabToFuriganaTypeQuestion;
+  window.vocabToKanjiFuriganaMatchQuestion = vocabToKanjiFuriganaMatchQuestion;
+  window.vocabToReadingMutationQuestion = vocabToReadingMutationQuestion;
   window.vocabToQuiz = vocabToQuiz;
   window.vocabToLessonHtml = vocabToLessonHtml;
 }
