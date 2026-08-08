@@ -348,6 +348,742 @@ h1.page-title{
 
 <script>
 /* ================================================================
+   JAPANESE VOCABULARY — master word list
+   ----------------------------------------------------------------
+   One entry per word/phrase. This is the single source of truth for
+   both flashcards and quizzes — see the helper functions at the
+   bottom of this file for how each is generated from it.
+
+   SCHEMA
+   ------
+   {
+     id:        string   unique, English-based, kebab-case
+     kana:      string   hiragana/katakana reading
+     kanji:     string|null   null when the word has no kanji form
+     meanings:  string[]  one or more valid English equivalents.
+                           meanings[0] is treated as the "primary" one
+                           (used on flashcards and as the quiz answer key)
+     note:      string    usage guidance shown to the learner (register,
+                           grammar, literal breakdown, etc). '' if none.
+     type:      'vocab' | 'expression'
+     tags:      string[]  chapter id(s) + part-of-speech / topic labels.
+                           A word can carry more than one chapter tag if
+                           it's introduced once and reviewed again later.
+   }
+
+   Add new words by pushing more objects into VOCAB_JAPANESE below —
+   nothing else in this file needs to change.
+   ================================================================ */
+
+const VOCAB_JAPANESE = [
+
+  /* ---------------- CHAPTER 0 — 生活の言葉 (Life Vocabulary) ---------------- */
+
+  // Days of the week
+  { id:'monday',    kana:'げつようび', kanji:'月曜日', meanings:['Monday'],    note:'', type:'vocab', tags:['ch0','day-of-week','time'] },
+  { id:'tuesday',   kana:'かようび',   kanji:'火曜日', meanings:['Tuesday'],   note:'', type:'vocab', tags:['ch0','day-of-week','time'] },
+  { id:'wednesday', kana:'すいようび', kanji:'水曜日', meanings:['Wednesday'], note:'', type:'vocab', tags:['ch0','day-of-week','time'] },
+  { id:'thursday',  kana:'もくようび', kanji:'木曜日', meanings:['Thursday'],  note:'', type:'vocab', tags:['ch0','day-of-week','time'] },
+  { id:'friday',    kana:'きんようび', kanji:'金曜日', meanings:['Friday'],    note:'', type:'vocab', tags:['ch0','day-of-week','time'] },
+  { id:'saturday',  kana:'どようび',   kanji:'土曜日', meanings:['Saturday'],  note:'', type:'vocab', tags:['ch0','day-of-week','time'] },
+  { id:'sunday',    kana:'にちようび', kanji:'日曜日', meanings:['Sunday'],    note:'', type:'vocab', tags:['ch0','day-of-week','time'] },
+
+  // Months of the year
+  { id:'january',   kana:'いちがつ',     kanji:'一月',   meanings:['January'],   note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'february',  kana:'にがつ',       kanji:'二月',   meanings:['February'],  note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'march',      kana:'さんがつ',     kanji:'三月',   meanings:['March'],     note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'april',      kana:'しがつ',       kanji:'四月',   meanings:['April'],     note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'may',        kana:'ごがつ',       kanji:'五月',   meanings:['May'],       note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'june',       kana:'ろくがつ',     kanji:'六月',   meanings:['June'],      note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'july',       kana:'しちがつ',     kanji:'七月',   meanings:['July'],      note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'august',     kana:'はちがつ',     kanji:'八月',   meanings:['August'],    note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'september',  kana:'くがつ',       kanji:'九月',   meanings:['September'], note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'october',    kana:'じゅうがつ',   kanji:'十月',   meanings:['October'],   note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'november',   kana:'じゅういちがつ', kanji:'十一月', meanings:['November'], note:'', type:'vocab', tags:['ch0','month','time'] },
+  { id:'december',   kana:'じゅうにがつ', kanji:'十二月', meanings:['December'],  note:'', type:'vocab', tags:['ch0','month','time'] },
+
+  // Days of the month
+  { id:'first',            kana:'ついたち',       kanji:'一日',   meanings:['First'],          note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'second',           kana:'ふつか',         kanji:'二日',   meanings:['Second'],         note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'third',            kana:'みっか',         kanji:'三日',   meanings:['Third'],          note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'fourth',           kana:'よっか',         kanji:'四日',   meanings:['Fourth'],         note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'fifth',            kana:'いつか',         kanji:'五日',   meanings:['Fifth'],          note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'sixth',            kana:'むいか',         kanji:'六日',   meanings:['Sixth'],          note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'seventh',          kana:'なのか',         kanji:'七日',   meanings:['Seventh'],        note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'eighth',           kana:'ようか',         kanji:'八日',   meanings:['Eighth'],         note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'ninth',            kana:'ここのか',       kanji:'九日',   meanings:['Ninth'],          note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'tenth',            kana:'とおか',         kanji:'十日',   meanings:['Tenth'],          note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'eleventh',         kana:'じゅういちにち', kanji:'十一日', meanings:['Eleventh'],       note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twelfth',          kana:'じゅうににち',   kanji:'十二日', meanings:['Twelfth'],        note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'thirteenth',       kana:'じゅうさんにち', kanji:'十三日', meanings:['Thirteenth'],     note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'fourteenth',       kana:'じゅうよっか',   kanji:'十四日', meanings:['Fourteenth'],     note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'fifteenth',        kana:'じゅうごにち',   kanji:'十五日', meanings:['Fifteenth'],      note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'sixteenth',        kana:'じゅうろくにち', kanji:'十六日', meanings:['Sixteenth'],      note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'seventeenth',      kana:'じゅうしちにち', kanji:'十七日', meanings:['Seventeenth'],    note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'eighteenth',       kana:'じゅうはちにち', kanji:'十八日', meanings:['Eighteenth'],     note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'nineteenth',       kana:'じゅうくにち',   kanji:'十九日', meanings:['Nineteenth'],     note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twentieth',        kana:'はつか',         kanji:'二十日', meanings:['Twentieth'],      note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twenty-first',     kana:'にじゅういちにち', kanji:'二十一日', meanings:['Twenty-first'],   note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twenty-second',    kana:'にじゅうににち',   kanji:'二十二日', meanings:['Twenty-second'],  note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twenty-third',     kana:'にじゅうさんにち', kanji:'二十三日', meanings:['Twenty-third'],   note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twenty-fourth',    kana:'にじゅうよっか',   kanji:'二十四日', meanings:['Twenty-fourth'],  note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twenty-fifth',     kana:'にじゅうごにち',   kanji:'二十五日', meanings:['Twenty-fifth'],   note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twenty-sixth',     kana:'にじゅうろくにち', kanji:'二十六日', meanings:['Twenty-sixth'],   note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twenty-seventh',   kana:'にじゅうしちにち', kanji:'二十七日', meanings:['Twenty-seventh'], note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twenty-eighth',    kana:'にじゅうはちにち', kanji:'二十八日', meanings:['Twenty-eighth'],  note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'twenty-ninth',     kana:'にじゅうくにち',   kanji:'二十九日', meanings:['Twenty-ninth'],   note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'thirtieth',        kana:'さんじゅうにち',   kanji:'三十日',   meanings:['Thirtieth'],      note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+  { id:'thirty-first',     kana:'さんじゅういちにち', kanji:'三十一日', meanings:['Thirty-first'],  note:'', type:'vocab', tags:['ch0','day-of-month','time'] },
+
+  // General life vocabulary
+  { id:'excuse-me',      kana:'すみません', kanji:null,     meanings:['Excuse me'],                  note:'', type:'expression', tags:['ch0','ch1','greeting'] },
+  { id:'how-much',       kana:'いくら',     kanji:null,     meanings:['How much?'],                  note:'', type:'expression', tags:['ch0','question'] },
+  { id:'yen',            kana:'～えん',     kanji:'～円',   meanings:['~ yen'],                       note:'counter for Japanese currency', type:'vocab', tags:['ch0','counter','money'] },
+  { id:'now',            kana:'いま',       kanji:'今',     meanings:['now'],                         note:'', type:'vocab', tags:['ch0','time'] },
+  { id:'oclock-minutes', kana:'～じ～ふん', kanji:'～時～分', meanings:['~ o\u2019clock ~ minutes'],  note:'pattern used for telling time', type:'vocab', tags:['ch0','time'] },
+  { id:'half-past',      kana:'（しち）じはん', kanji:'（七）時半', meanings:['half past (7 o\u2019clock)','7:30'], note:'', type:'vocab', tags:['ch0','time'] },
+  { id:'am',             kana:'ごぜん',     kanji:'午前',   meanings:['morning (a.m.)'],              note:'', type:'vocab', tags:['ch0','time'] },
+  { id:'pm',             kana:'ごご',       kanji:'午後',   meanings:['afternoon (p.m.)'],            note:'', type:'vocab', tags:['ch0','time'] },
+  { id:'what-time',      kana:'なんじ',     kanji:'何時',   meanings:['what time'],                   note:'', type:'vocab', tags:['ch0','time','question'] },
+  { id:'minutes-to',     kana:'～ふんまえ', kanji:'～分前', meanings:['~ minutes to (e.g. 3 o\u2019clock)'], note:'', type:'vocab', tags:['ch0','time'] },
+  { id:'today',          kana:'きょう',     kanji:'今日',   meanings:['today'],                       note:'', type:'vocab', tags:['ch0','time'] },
+  { id:'birthday',       kana:'たんじょうび', kanji:'誕生日', meanings:['birthday'],                  note:'', type:'vocab', tags:['ch0'] },
+
+  /* ---------------- CHAPTER 1 ---------------- */
+
+  { id:'i-me',          kana:'わたし',     kanji:'私',     meanings:['I','me'],                       note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'honorific-san', kana:'～さん',     kanji:null,     meanings:['Mr.','Mrs.','Ms.','Mdm'],       note:'honorific suffix attached after a name', type:'vocab', tags:['ch1','noun'] },
+  { id:'singapore',     kana:'シンガポール', kanji:null,   meanings:['Singapore'],                     note:'', type:'vocab', tags:['ch1','noun','country'] },
+  { id:'student',       kana:'がくせい',   kanji:'学生',   meanings:['student'],                       note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'teacher',       kana:'せんせい',   kanji:'先生',   meanings:['teacher'],                       note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'university',    kana:'だいがく',   kanji:'大学',   meanings:['university'],                    note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'classroom',     kana:'きょうしつ', kanji:'教室',   meanings:['classroom'],                     note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'breakfast',     kana:'あさごはん', kanji:'朝ご飯', meanings:['breakfast'],                     note:'', type:'vocab', tags:['ch1','noun','food'] },
+  { id:'lunch',         kana:'ひるごはん', kanji:'昼ご飯', meanings:['lunch'],                         note:'', type:'vocab', tags:['ch1','noun','food'] },
+  { id:'dinner',        kana:'ばんごはん', kanji:'晩ご飯', meanings:['dinner'],                        note:'', type:'vocab', tags:['ch1','noun','food'] },
+  { id:'kanji-characters', kana:'かんじ',  kanji:'漢字',   meanings:['kanji (Chinese characters)'],    note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'textbook',      kana:'きょうかしょ', kanji:'教科書', meanings:['textbook'],                    note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'class-lesson',  kana:'じゅぎょう', kanji:'授業',   meanings:['class','lesson'],                note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'break-holiday', kana:'やすみ',     kanji:'休み',   meanings:['break','holiday','vacation'],    note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'lunch-break',   kana:'ひるやすみ', kanji:'昼休み', meanings:['lunch break'],                   note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'summer-vacation', kana:'なつやすみ', kanji:'夏休み', meanings:['summer vacation'],             note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'when',          kana:'いつ',       kanji:null,     meanings:['when'],                          note:'', type:'vocab', tags:['ch1','question'] },
+  { id:'school',        kana:'がっこう',   kanji:'学校',   meanings:['school'],                        note:'', type:'vocab', tags:['ch1','noun'] },
+  { id:'bank',          kana:'ぎんこう',   kanji:'銀行',   meanings:['bank'],                          note:'', type:'vocab', tags:['ch1','noun'] },
+
+  /* ---------------- CHAPTER 2 ---------------- */
+
+  // Verbs
+  { id:'drink',            kana:'のみます',       kanji:'飲みます',     meanings:['to drink'],                    note:'', type:'vocab', tags:['ch2','verb','v1'] },
+  { id:'eat',               kana:'たべます',       kanji:'食べます',     meanings:['to eat'],                      note:'', type:'vocab', tags:['ch2','verb','v2'] },
+  { id:'watch-see-look',    kana:'みます',         kanji:'見ます',       meanings:['to watch','to see','to look'], note:'', type:'vocab', tags:['ch2','verb','v2'] },
+  { id:'listen-hear',       kana:'ききます',       kanji:'聞きます',     meanings:['to listen','to hear'],         note:'', type:'vocab', tags:['ch2','verb','v1'] },
+  { id:'read',              kana:'よみます',       kanji:'読みます',     meanings:['to read'],                     note:'', type:'vocab', tags:['ch2','verb','v1'] },
+  { id:'write',             kana:'かきます',       kanji:'書きます',     meanings:['to write'],                    note:'', type:'vocab', tags:['ch2','verb','v1'] },
+  { id:'smoke-cigarettes',  kana:'たばこをすいます', kanji:'たばこを吸います', meanings:['to smoke cigarettes'],  note:'', type:'vocab', tags:['ch2','verb','v1'] },
+  { id:'do',                kana:'します',         kanji:null,           meanings:['to do'],                       note:'', type:'vocab', tags:['ch2','verb','v3'] },
+  { id:'work',              kana:'しごとをします', kanji:'仕事をします', meanings:['to work'],                     note:'literally "to do (work)"', type:'vocab', tags:['ch2','verb','v3'] },
+  { id:'study',             kana:'べんきょう（を）します', kanji:'勉強（を）します', meanings:['to study'],       note:'', type:'vocab', tags:['ch2','verb','v3'] },
+  { id:'play-tennis',       kana:'テニスをします', kanji:null,           meanings:['to play tennis'],              note:'literally "to do (tennis)"', type:'vocab', tags:['ch2','verb','v3'] },
+  { id:'play-soccer',       kana:'サッカーをします', kanji:null,         meanings:['to play soccer'],              note:'literally "to do (soccer)"', type:'vocab', tags:['ch2','verb','v3'] },
+  { id:'wake-up',           kana:'おきます',       kanji:'起きます',     meanings:['to wake up'],                  note:'', type:'vocab', tags:['ch2','verb','v2'] },
+  { id:'sleep',             kana:'ねます',         kanji:'寝ます',       meanings:['to sleep'],                    note:'', type:'vocab', tags:['ch2','verb','v2'] },
+  { id:'go',                kana:'いきます',       kanji:'行きます',     meanings:['to go'],                       note:'', type:'vocab', tags:['ch2','verb','v1'] },
+  { id:'return',            kana:'かえります',     kanji:'帰ります',     meanings:['to return'],                   note:'', type:'vocab', tags:['ch2','verb','v1'] },
+  { id:'come',              kana:'きます',         kanji:'来ます',       meanings:['to come'],                     note:'', type:'vocab', tags:['ch2','verb','v3'] },
+
+  // Nouns & others
+  { id:'company',       kana:'かいしゃ',   kanji:'会社', meanings:['company'],           note:'', type:'vocab', tags:['ch2','noun'] },
+  { id:'home',          kana:'うち',       kanji:null,   meanings:['home'],               note:'', type:'vocab', tags:['ch2','noun'] },
+  { id:'what',          kana:'なに',       kanji:'何',   meanings:['what'],               note:'', type:'vocab', tags:['ch2','question'] },
+  { id:'where',         kana:'どこ',       kanji:null,   meanings:['where'],              note:'', type:'vocab', tags:['ch2','ch5','question'] },
+  { id:'music',         kana:'おんがく',   kanji:'音楽', meanings:['music'],              note:'', type:'vocab', tags:['ch2','noun'] },
+  { id:'television',    kana:'テレビ',     kanji:null,   meanings:['television'],         note:'', type:'vocab', tags:['ch2','noun'] },
+  { id:'letter',        kana:'てがみ',     kanji:'手紙', meanings:['letter'],             note:'', type:'vocab', tags:['ch2','noun'] },
+  { id:'restaurant',    kana:'レストラン', kanji:null,   meanings:['restaurant'],         note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'hamburger',     kana:'ハンバーガー', kanji:null, meanings:['hamburger'],          note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'sandwich',      kana:'サンドイッチ', kanji:null, meanings:['sandwich'],           note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'ice-cream',     kana:'アイスクリーム', kanji:null, meanings:['ice cream'],        note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'curry',         kana:'カレー',     kanji:null,   meanings:['curry'],              note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'spaghetti',     kana:'スパゲッティ', kanji:null, meanings:['spaghetti'],          note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'ramen',         kana:'ラーメン',   kanji:null,   meanings:['ramen'],              note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'salad',         kana:'サラダ',     kanji:null,   meanings:['salad'],              note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'udon',          kana:'うどん',     kanji:null,   meanings:['udon (Japanese noodles)'], note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'soba-noodles',  kana:'そば',       kanji:null,   meanings:['soba (buckwheat noodles)'], note:'', type:'vocab', tags:['ch2','noun','food'] },
+  { id:'milk',          kana:'ぎゅうにゅう', kanji:'牛乳', meanings:['milk'],             note:'', type:'vocab', tags:['ch2','noun','drink'] },
+  { id:'water',         kana:'みず',       kanji:'水',   meanings:['water'],              note:'', type:'vocab', tags:['ch2','noun','drink'] },
+  { id:'coke',          kana:'コーラ',     kanji:null,   meanings:['coke'],               note:'', type:'vocab', tags:['ch2','noun','drink'] },
+  { id:'coffee',        kana:'コーヒー',   kanji:null,   meanings:['coffee'],             note:'', type:'vocab', tags:['ch2','noun','drink'] },
+  { id:'juice',         kana:'ジュース',   kanji:null,   meanings:['juice'],              note:'', type:'vocab', tags:['ch2','noun','drink'] },
+  { id:'beer',          kana:'ビール',     kanji:null,   meanings:['beer'],               note:'', type:'vocab', tags:['ch2','noun','drink'] },
+  { id:'movie',         kana:'えいが',     kanji:'映画', meanings:['movie'],              note:'', type:'vocab', tags:['ch2','noun'] },
+  { id:'japan',         kana:'にほん',     kanji:'日本', meanings:['Japan'],              note:'', type:'vocab', tags:['ch2','noun','country'] },
+  { id:'morning',       kana:'あさ',       kanji:'朝',   meanings:['morning'],            note:'', type:'vocab', tags:['ch2','noun','time'] },
+  { id:'night',         kana:'よる',       kanji:'夜',   meanings:['night'],              note:'', type:'vocab', tags:['ch2','noun','time'] },
+  { id:'around-oclock', kana:'（～じ）ごろ／ごろに', kanji:'（～時）ごろ／ごろに', meanings:['around (~ o\u2019clock)'], note:'', type:'vocab', tags:['ch2','time'] },
+  { id:'one-day',       kana:'いちにち',   kanji:'一日', meanings:['one day'],            note:'', type:'vocab', tags:['ch2','noun','time'] },
+  { id:'yesterday',     kana:'きのう',     kanji:'昨日', meanings:['yesterday'],          note:'', type:'vocab', tags:['ch2','noun','time'] },
+
+  /* ---------------- CHAPTER 3 ---------------- */
+
+  { id:'desk',          kana:'つくえ',     kanji:'机',   meanings:['desk'],               note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'chair',         kana:'いす',       kanji:null,   meanings:['chair'],              note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'window',        kana:'まど',       kanji:'窓',   meanings:['window'],             note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'door',          kana:'ドア',       kanji:null,   meanings:['door'],               note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'dustbin',       kana:'ごみばこ',   kanji:'ごみ箱', meanings:['dust bin','rubbish bin'], note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'notebook',      kana:'ノート',     kanji:null,   meanings:['notebook'],           note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'pencil',        kana:'えんぴつ',   kanji:'鉛筆', meanings:['pencil'],             note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'eraser',        kana:'けしゴム',   kanji:'消しゴム', meanings:['eraser'],         note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'ballpoint-pen', kana:'ボールペン', kanji:null,   meanings:['ballpoint pen'],      note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'book',          kana:'ほん',       kanji:'本',   meanings:['book'],               note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'dictionary',    kana:'じしょ',     kanji:'辞書', meanings:['dictionary'],         note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'clock-watch',   kana:'とけい',     kanji:'時計', meanings:['clock','watch'],      note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'glasses',       kana:'めがね',     kanji:null,   meanings:['spectacles','glasses'], note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'umbrella',      kana:'かさ',       kanji:'傘',   meanings:['umbrella'],           note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'bag',           kana:'かばん',     kanji:null,   meanings:['bag'],                note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'shoes',         kana:'くつ',       kanji:'靴',   meanings:['shoe(s)'],            note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'computer',      kana:'パソコン',   kanji:null,   meanings:['computer'],           note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'cell-phone',    kana:'けいたいでんわ', kanji:'携帯電話', meanings:['cell phone'], note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'what-is',       kana:'なん（ですか。）', kanji:'何（ですか）', meanings:['What (is...?)'], note:'', type:'expression', tags:['ch3','question'] },
+  { id:'who',           kana:'だれ',       kanji:'誰',   meanings:['who'],                note:'', type:'vocab', tags:['ch3','question'] },
+  { id:'newspaper',     kana:'しんぶん',   kanji:'新聞', meanings:['newspaper'],          note:'', type:'vocab', tags:['ch3','noun'] },
+  { id:'japanese-language', kana:'にほんご', kanji:'日本語', meanings:['Japanese (language)'], note:'', type:'vocab', tags:['ch3','noun','language'] },
+  { id:'english-language',  kana:'えいご',   kanji:'英語',   meanings:['English (language)'],  note:'', type:'vocab', tags:['ch3','noun','language'] },
+  { id:'chinese-language',  kana:'ちゅうごくご', kanji:'中国語', meanings:['Chinese (language)'], note:'', type:'vocab', tags:['ch3','noun','language'] },
+  { id:'cat',           kana:'ねこ',       kanji:'猫',   meanings:['cat'],                note:'', type:'vocab', tags:['ch3','noun','animal'] },
+  { id:'dog',           kana:'いぬ',       kanji:'犬',   meanings:['dog'],                note:'', type:'vocab', tags:['ch3','noun','animal'] },
+  { id:'this-one',      kana:'これ',       kanji:null,   meanings:['this (one)'],         note:'', type:'vocab', tags:['ch3','pronoun'] },
+  { id:'that-one',      kana:'それ',       kanji:null,   meanings:['that (one)'],         note:'used when the object is far from the speaker but near the listener', type:'vocab', tags:['ch3','pronoun'] },
+  { id:'that-one-over-there', kana:'あれ', kanji:null,   meanings:['that (one over there)'], note:'object is far from both speaker and listener', type:'vocab', tags:['ch3','pronoun'] },
+
+  /* ---------------- CHAPTER 4 ---------------- */
+
+  // i-adjectives
+  { id:'wide-spacious', kana:'ひろい',   kanji:'広い', meanings:['wide','spacious'],  note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'narrow',        kana:'せまい',   kanji:'狭い', meanings:['narrow'],           note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'big',           kana:'おおきい', kanji:'大きい', meanings:['big'],            note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'small',         kana:'ちいさい', kanji:'小さい', meanings:['small'],          note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'long',          kana:'ながい',   kanji:'長い', meanings:['long'],             note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'short',         kana:'みじかい', kanji:'短い', meanings:['short'],            note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'expensive-tall', kana:'たかい',  kanji:'高い', meanings:['expensive','tall'], note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'cheap',         kana:'やすい',   kanji:'安い', meanings:['cheap'],            note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'hot-weather',   kana:'あつい',   kanji:'暑い', meanings:['hot'],              note:'used for weather', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'cold-weather',  kana:'さむい',   kanji:'寒い', meanings:['cold'],             note:'used for weather', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'new',           kana:'あたらしい', kanji:'新しい', meanings:['new'],          note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'old',           kana:'ふるい',   kanji:'古い', meanings:['old'],              note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'bright',        kana:'あかるい', kanji:'明るい', meanings:['bright'],         note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'dark',          kana:'くらい',   kanji:'暗い', meanings:['dark'],             note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'noisy',         kana:'うるさい', kanji:null,   meanings:['noisy'],            note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'dirty-untidy',  kana:'きたない', kanji:'汚い', meanings:['dirty','untidy'],   note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'cute',          kana:'かわいい', kanji:null,   meanings:['cute'],             note:'', type:'vocab', tags:['ch4','adjective','i-adjective'] },
+  { id:'red',           kana:'あかい',   kanji:'赤い', meanings:['red'],              note:'', type:'vocab', tags:['ch4','adjective','i-adjective','color'] },
+  { id:'blue',          kana:'あおい',   kanji:'青い', meanings:['blue'],             note:'', type:'vocab', tags:['ch4','adjective','i-adjective','color'] },
+  { id:'black',         kana:'くろい',   kanji:'黒い', meanings:['black'],            note:'', type:'vocab', tags:['ch4','adjective','i-adjective','color'] },
+  { id:'white',         kana:'しろい',   kanji:'白い', meanings:['white'],            note:'', type:'vocab', tags:['ch4','adjective','i-adjective','color'] },
+  { id:'yellow',        kana:'きいろい', kanji:'黄色い', meanings:['yellow'],         note:'', type:'vocab', tags:['ch4','adjective','i-adjective','color'] },
+
+  // na-adjectives
+  { id:'quiet-silent',    kana:'しずか（な）', kanji:'静か',   meanings:['quiet','silent'],   note:'', type:'vocab', tags:['ch4','adjective','na-adjective'] },
+  { id:'clean-beautiful', kana:'きれい（な）', kanji:null,     meanings:['clean','beautiful'], note:'', type:'vocab', tags:['ch4','adjective','na-adjective'] },
+  { id:'lively-healthy',  kana:'げんき（な）', kanji:'元気',   meanings:['lively','healthy'], note:'', type:'vocab', tags:['ch4','adjective','na-adjective'] },
+
+  // Nouns & others
+  { id:'room',     kana:'へや', kanji:'部屋', meanings:['room'],             note:'', type:'vocab', tags:['ch4','noun'] },
+  { id:'car',      kana:'くるま', kanji:'車', meanings:['car'],              note:'', type:'vocab', tags:['ch4','noun'] },
+  { id:'flower',   kana:'はな', kanji:'花',   meanings:['flower'],           note:'', type:'vocab', tags:['ch4','noun'] },
+  { id:'painting-drawing', kana:'え', kanji:'絵', meanings:['painting','drawing'], note:'', type:'vocab', tags:['ch4','noun'] },
+  { id:'this-determiner',      kana:'この', kanji:null, meanings:['this'], note:'used directly before a noun (e.g. この本 = this book)', type:'vocab', tags:['ch4','determiner'] },
+  { id:'that-determiner-near', kana:'その', kanji:null, meanings:['that'], note:'used directly before a noun; refers to something near the listener', type:'vocab', tags:['ch4','determiner'] },
+  { id:'that-determiner-far',  kana:'あの', kanji:null, meanings:['that'], note:'used directly before a noun; refers to something far from both speaker and listener', type:'vocab', tags:['ch4','determiner'] },
+  { id:'which-one', kana:'どれ', kanji:null, meanings:['which'], note:'', type:'vocab', tags:['ch4','question'] },
+
+  /* ---------------- CHAPTER 5 ---------------- */
+
+  // Verbs
+  { id:'there-is-inanimate', kana:'あります', kanji:null, meanings:['be','there is/are'], note:'existential verb used for non-animate (inanimate) things', type:'vocab', tags:['ch5','verb','v1'] },
+  { id:'there-is-animate',   kana:'います',   kanji:null, meanings:['be','there is/are'], note:'existential verb used for animate things', type:'vocab', tags:['ch5','verb','v2'] },
+
+  // Nouns & others — location
+  { id:'above-top-on', kana:'うえ',   kanji:'上',   meanings:['above','top','on'], note:'', type:'vocab', tags:['ch5','noun','location'] },
+  { id:'in-inside',    kana:'なか',   kanji:'中',   meanings:['in','inside'],      note:'', type:'vocab', tags:['ch5','noun','location'] },
+  { id:'under-below',  kana:'した',   kanji:'下',   meanings:['under','below'],    note:'', type:'vocab', tags:['ch5','noun','location'] },
+  { id:'front',        kana:'まえ',   kanji:'前',   meanings:['front'],            note:'', type:'vocab', tags:['ch5','noun','location'] },
+  { id:'behind-rear',  kana:'うしろ', kanji:'後ろ', meanings:['behind','rear'],    note:'', type:'vocab', tags:['ch5','noun','location'] },
+  { id:'left',         kana:'ひだり', kanji:'左',   meanings:['left'],             note:'', type:'vocab', tags:['ch5','noun','location'] },
+  { id:'right',        kana:'みぎ',   kanji:'右',   meanings:['right'],            note:'', type:'vocab', tags:['ch5','noun','location'] },
+  { id:'next-to-adjacent', kana:'となり', kanji:'隣', meanings:['next to','adjacent'], note:'', type:'vocab', tags:['ch5','noun','location'] },
+  { id:'nearby',       kana:'そば',   kanji:null,   meanings:['nearby'],           note:'', type:'vocab', tags:['ch5','noun','location'] },
+  { id:'supermarket',  kana:'スーパー', kanji:null, meanings:['supermarket'],      note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'convenience-store', kana:'コンビニ', kanji:null, meanings:['convenience store'], note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'hospital',     kana:'びょういん', kanji:'病院', meanings:['hospital'],     note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'train-station', kana:'えき',  kanji:'駅',   meanings:['train station'],    note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'park',         kana:'こうえん', kanji:'公園', meanings:['park'],           note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'coffee-house-cafe', kana:'きっさてん', kanji:'喫茶店', meanings:['coffee house','cafe'], note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'bookshop',     kana:'ほんや', kanji:'本屋', meanings:['bookshop'],         note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'hotel',        kana:'ホテル', kanji:null,   meanings:['hotel'],            note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'toilet-formal', kana:'おてあらい', kanji:'お手洗い', meanings:['toilet'],  note:'polite/formal word for toilet', type:'vocab', tags:['ch5','noun'] },
+  { id:'box',          kana:'はこ',   kanji:'箱',   meanings:['box'],              note:'', type:'vocab', tags:['ch5','noun'] },
+
+  // Nouns & others (2nd list)
+  { id:'table',        kana:'テーブル', kanji:null, meanings:['table'],            note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'sweets-snacks', kana:'おかし', kanji:'お菓子', meanings:['sweets','confectionery','snacks'], note:'', type:'vocab', tags:['ch5','noun','food'] },
+  { id:'cake',         kana:'ケーキ', kanji:null, meanings:['cake'],               note:'', type:'vocab', tags:['ch5','noun','food'] },
+  { id:'telephone',    kana:'でんわ', kanji:'電話', meanings:['telephone'],        note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'manga-comics', kana:'まんが', kanji:null, meanings:['manga','comics'],     note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'woman',        kana:'おんなのひと', kanji:'女の人', meanings:['woman','women'], note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'man',          kana:'おとこのひと', kanji:'男の人', meanings:['man','men'], note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'girl',         kana:'おんなのこ', kanji:'女の子', meanings:['girl'],       note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'boy',          kana:'おとこのこ', kanji:'男の子', meanings:['boy'],        note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'skirt',        kana:'スカート', kanji:null, meanings:['skirt'],            note:'', type:'vocab', tags:['ch5','noun','clothing'] },
+  { id:'fruits',       kana:'くだもの', kanji:'果物', meanings:['fruits'],         note:'', type:'vocab', tags:['ch5','noun','food'] },
+  { id:'sweater',      kana:'セーター', kanji:null, meanings:['sweater'],          note:'', type:'vocab', tags:['ch5','noun','clothing'] },
+  { id:'shirt',        kana:'シャツ', kanji:null, meanings:['shirt'],              note:'', type:'vocab', tags:['ch5','noun','clothing'] },
+  { id:'necktie',      kana:'ネクタイ', kanji:null, meanings:['necktie'],          note:'', type:'vocab', tags:['ch5','noun','clothing'] },
+  { id:'accessories',  kana:'アクセサリー', kanji:null, meanings:['accessories'],  note:'', type:'vocab', tags:['ch5','noun','clothing'] },
+  { id:'bed',          kana:'ベッド', kanji:null, meanings:['bed'],                note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'toilet-casual', kana:'トイレ', kanji:null, meanings:['toilet'],           note:'casual, everyday word for toilet', type:'vocab', tags:['ch5','noun'] },
+  { id:'elevator-lift', kana:'エレベーター', kanji:null, meanings:['elevator','lift'], note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'escalator',    kana:'エスカレーター', kanji:null, meanings:['escalator'],  note:'', type:'vocab', tags:['ch5','noun'] },
+  { id:'here',         kana:'ここ',   kanji:null, meanings:['here'],               note:'', type:'vocab', tags:['ch5','location'] },
+  { id:'there',        kana:'そこ',   kanji:null, meanings:['there'],              note:'', type:'vocab', tags:['ch5','location'] },
+  { id:'over-there',   kana:'あそこ', kanji:null, meanings:['over there'],         note:'', type:'vocab', tags:['ch5','location'] },
+  { id:'which-level',  kana:'なんかい', kanji:'何階', meanings:['which level'],    note:'', type:'vocab', tags:['ch5','question'] },
+  { id:'welcome-home', kana:'おかえりなさい', kanji:null, meanings:['welcome home'], note:'used to greet someone returning home; no exact English equivalent', type:'expression', tags:['ch5','greeting'] },
+
+  /* ---------------- CHAPTER 6 ---------------- */
+
+  // Verbs
+  { id:'draw-paint',  kana:'（えを）かく', kanji:'（絵を）描く', meanings:['to draw','to paint'], note:'', type:'vocab', tags:['ch6','verb','v1'] },
+  { id:'cook',        kana:'りょうりをする', kanji:'料理をする', meanings:['to cook'], note:'literally "to do cooking"', type:'vocab', tags:['ch6','verb','v3'] },
+  { id:'play-sports', kana:'スポーツをする', kanji:null, meanings:['to play sports'], note:'', type:'vocab', tags:['ch6','verb','v3'] },
+  { id:'shop',        kana:'かいものをする', kanji:'買い物をする', meanings:['to shop','to go shopping'], note:'literally "to do shopping"', type:'vocab', tags:['ch6','verb','v3'] },
+
+  // Adjectives
+  { id:'delicious',       kana:'おいしい', kanji:null, meanings:['delicious'], note:'', type:'vocab', tags:['ch6','adjective','i-adjective'] },
+  { id:'like',             kana:'すき（な）', kanji:'好き（な）', meanings:['like'], note:'', type:'vocab', tags:['ch6','adjective','na-adjective'] },
+  { id:'like-very-much',   kana:'だいすき（な）', kanji:'大好き（な）', meanings:['like very much'], note:'', type:'vocab', tags:['ch6','adjective','na-adjective'] },
+  { id:'dislike-hate',     kana:'きらい（な）', kanji:'嫌い（な）', meanings:['dislike','hate'], note:'', type:'vocab', tags:['ch6','adjective','na-adjective'] },
+
+  // Nouns & others
+  { id:'everyone',       kana:'みなさん', kanji:'皆さん', meanings:['everyone'],   note:'', type:'vocab', tags:['ch6','noun'] },
+  { id:'friends',        kana:'ともだち', kanji:'友達',   meanings:['friend(s)'],  note:'', type:'vocab', tags:['ch6','noun'] },
+  { id:'not-very',       kana:'あまり',   kanji:null,     meanings:['[not] very','[not often]'], note:'used with a negative verb form', type:'vocab', tags:['ch6','adverb'] },
+  { id:'often',          kana:'よく',     kanji:null,     meanings:['often','well, carefully, properly'], note:'the second meaning is used to modify a verb, e.g. \u3088\u304f\u805e\u3044\u3066\u304f\u3060\u3055\u3044 = please listen carefully', type:'vocab', tags:['ch6','ch9','adverb'] },
+  { id:'not-at-all',     kana:'ぜんぜん', kanji:'全然',   meanings:['[not] at all'], note:'used with a negative verb form', type:'vocab', tags:['ch6','adverb'] },
+  { id:'sometimes',      kana:'ときどき', kanji:'時々',   meanings:['sometimes','from time to time'], note:'', type:'vocab', tags:['ch6','adverb'] },
+  { id:'always',         kana:'いつも',   kanji:null,     meanings:['always'],     note:'', type:'vocab', tags:['ch6','adverb'] },
+  { id:'every-day',      kana:'まいにち', kanji:'毎日',   meanings:['every day'],  note:'', type:'vocab', tags:['ch6','ch8','noun','time'] },
+  { id:'in-front-of-station', kana:'えきまえ', kanji:'駅前', meanings:['in front of the station'], note:'', type:'vocab', tags:['ch6','noun','location'] },
+  { id:'cinema',         kana:'えいがかん', kanji:'映画館', meanings:['cinema'],   note:'', type:'vocab', tags:['ch6','noun'] },
+  { id:'what-kind-of',   kana:'どんな',   kanji:null,     meanings:['what kind of'], note:'', type:'vocab', tags:['ch6','question'] },
+  { id:'tempura',        kana:'てんぷら', kanji:'天ぷら', meanings:['tempura'],    note:'', type:'vocab', tags:['ch6','noun','food'] },
+  { id:'bus',            kana:'バス',     kanji:null,     meanings:['bus'],        note:'', type:'vocab', tags:['ch6','noun'] },
+  { id:'home-country',   kana:'くに',     kanji:'国',     meanings:['(home) country'], note:'', type:'vocab', tags:['ch6','noun'] },
+  { id:'winter-vacation', kana:'ふゆやすみ', kanji:'冬休み', meanings:['winter vacation'], note:'', type:'vocab', tags:['ch6','noun'] },
+  { id:'outside',        kana:'そと',     kanji:'外',     meanings:['outside'],    note:'', type:'vocab', tags:['ch6','noun','location'] },
+  { id:'news',           kana:'ニュース', kanji:null,     meanings:['news'],       note:'', type:'vocab', tags:['ch6','noun'] },
+  { id:'tv-drama',       kana:'ドラマ',   kanji:null,     meanings:['TV drama'],   note:'', type:'vocab', tags:['ch6','noun'] },
+
+  /* ---------------- CHAPTER 7 ---------------- */
+
+  // Verbs
+  { id:'drop',            kana:'おとす', kanji:'落とす', meanings:['to drop'],                note:'', type:'vocab', tags:['ch7','verb'] },
+  { id:'understand',      kana:'わかる', kanji:null,     meanings:['to understand'],          note:'', type:'vocab', tags:['ch7','verb'] },
+  { id:'buy',             kana:'かう',   kanji:'買う',   meanings:['to buy'],                 note:'', type:'vocab', tags:['ch7','verb'] },
+  { id:'search-look-for', kana:'さがす', kanji:'探す',   meanings:['to search','to look for'], note:'', type:'vocab', tags:['ch7','ch9','verb'] },
+  { id:'clean',           kana:'そうじ（を）する', kanji:'掃除をする', meanings:['to clean'], note:'literally "to do cleaning"', type:'vocab', tags:['ch7','verb','v3'] },
+  { id:'do-laundry',      kana:'せんたく（を）する', kanji:'洗濯をする', meanings:['to do laundry'], note:'', type:'vocab', tags:['ch7','verb','v3'] },
+  { id:'forget',          kana:'わすれる', kanji:'忘れる', meanings:['to forget'],             note:'', type:'vocab', tags:['ch7','verb'] },
+  { id:'borrow',          kana:'かりる', kanji:'借りる', meanings:['to borrow'],              note:'', type:'vocab', tags:['ch7','ch9','verb'] },
+  { id:'lend',            kana:'かす',   kanji:'貸す',   meanings:['to lend'],                note:'', type:'vocab', tags:['ch7','ch9','verb'] },
+  { id:'return-something', kana:'かえす', kanji:'返す',  meanings:['to return (something)'],  note:'', type:'vocab', tags:['ch7','ch9','verb'] },
+
+  // Adjectives
+  { id:'good-skilful-at', kana:'じょうず（な）', kanji:'上手（な）', meanings:['good, skilful at'], note:'', type:'vocab', tags:['ch7','adjective','na-adjective'] },
+  { id:'round',           kana:'まるい', kanji:'丸い',   meanings:['round'],                  note:'', type:'vocab', tags:['ch7','adjective','i-adjective'] },
+  { id:'square-rectangular', kana:'しかくい', kanji:'四角い', meanings:['square','rectangular'], note:'', type:'vocab', tags:['ch7','adjective','i-adjective'] },
+  { id:'ok-alright',      kana:'だいじょうぶ（な）', kanji:'大丈夫（な）', meanings:['OK','alright'], note:'', type:'vocab', tags:['ch7','adjective','na-adjective'] },
+  { id:'enjoyable-fun',   kana:'たのしい', kanji:'楽しい', meanings:['enjoyable','fun'],       note:'', type:'vocab', tags:['ch7','ch8','adjective','i-adjective'] },
+  { id:'interesting',     kana:'おもしろい', kanji:null,   meanings:['interesting','enjoyable'], note:'', type:'vocab', tags:['ch7','ch9','adjective','i-adjective'] },
+
+  // Nouns & others
+  { id:'wallet',          kana:'さいふ', kanji:'財布',   meanings:['wallet'],                 note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'at-that-time',    kana:'そのとき', kanji:'その時', meanings:['at that time'],         note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'postage-stamp',   kana:'きって', kanji:'切手',   meanings:['postage stamp'],          note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'and-then',        kana:'それから', kanji:null,   meanings:['and then','after','and also'], note:'', type:'vocab', tags:['ch7','ch9','conjunction'] },
+  { id:'but-however',     kana:'でも',   kanji:null,     meanings:['but','however'],          note:'', type:'vocab', tags:['ch7','conjunction'] },
+  { id:'day-before-yesterday', kana:'おととい', kanji:null, meanings:['the day before yesterday'], note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'tomorrow',        kana:'あした', kanji:'明日',   meanings:['tomorrow'],               note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'day-after-tomorrow', kana:'あさって', kanji:null, meanings:['the day after tomorrow'], note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'noon-daytime',    kana:'ひる',   kanji:'昼',     meanings:['noon','daytime'],         note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'evening',         kana:'ゆうがた', kanji:'夕方',  meanings:['evening'],                note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'last-night',      kana:'ゆうべ', kanji:null,     meanings:['last night'],             note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'this-morning',    kana:'けさ',   kanji:'今朝',   meanings:['this morning'],           note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'this-evening',    kana:'こんばん', kanji:'今晩',  meanings:['this evening'],           note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'last-week',       kana:'せんしゅう', kanji:'先週', meanings:['last week'],             note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'this-week',       kana:'こんしゅう', kanji:'今週', meanings:['this week'],             note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'next-week',       kana:'らいしゅう', kanji:'来週', meanings:['next week'],             note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'last-month',      kana:'せんげつ', kanji:'先月',  meanings:['last month'],             note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'this-month',      kana:'こんげつ', kanji:'今月',  meanings:['this month'],             note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'next-month',      kana:'らいげつ', kanji:'来月',  meanings:['next month'],             note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'last-year',       kana:'きょねん', kanji:'去年',  meanings:['last year'],              note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'this-year',       kana:'ことし', kanji:'今年',   meanings:['this year'],              note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'next-year',       kana:'らいねん', kanji:'来年',  meanings:['next year'],              note:'', type:'vocab', tags:['ch7','noun','time'] },
+  { id:'bread',           kana:'パン',   kanji:null,     meanings:['bread'],                  note:'', type:'vocab', tags:['ch7','noun','food'] },
+  { id:'song',            kana:'うた',   kanji:'歌',     meanings:['song'],                   note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'vegetables',      kana:'やさい', kanji:'野菜',   meanings:['vegetables'],             note:'', type:'vocab', tags:['ch7','noun','food'] },
+  { id:'approximately',   kana:'～ぐらい', kanji:null,   meanings:['about (~)'],              note:'e.g. 7\u5343\u5186\u3050\u3089\u3044 = about 7,000 yen', type:'vocab', tags:['ch7'] },
+  { id:'money',           kana:'（お）かね', kanji:'お金', meanings:['money'],                note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'besides',         kana:'ほかに', kanji:null,     meanings:['besides','in addition to'], note:'', type:'vocab', tags:['ch7'] },
+  { id:'only',            kana:'だけ',   kanji:null,     meanings:['only'],                   note:'', type:'vocab', tags:['ch7'] },
+  { id:'you',             kana:'あなた', kanji:null,     meanings:['you'],                    note:'seldom used in actual conversation \u2014 too direct, and can sound rude when addressing someone this way', type:'vocab', tags:['ch7','pronoun'] },
+  { id:'address',         kana:'じゅうしょ', kanji:'住所', meanings:['address'],               note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'name',            kana:'なまえ', kanji:'名前',   meanings:['name'],                   note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'telephone-number', kana:'でんわばんごう', kanji:'電話番号', meanings:['telephone number'], note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'later-afterwards', kana:'あとで', kanji:'後で',  meanings:['later','afterwards'],     note:'', type:'vocab', tags:['ch7'] },
+  { id:'shop-store',      kana:'みせ',   kanji:'店',     meanings:['shop','store'],           note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'homework',        kana:'しゅくだい', kanji:'宿題', meanings:['homework'],              note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'composition',     kana:'さくぶん', kanji:'作文',  meanings:['composition'],            note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'house',           kana:'いえ',   kanji:'家',     meanings:['house'],                  note:'', type:'vocab', tags:['ch7','noun'] },
+  { id:'i-dont-know',     kana:'わかりません。', kanji:null, meanings:['I don\u2019t know','I\u2019m not sure'], note:'', type:'expression', tags:['ch7'] },
+  { id:'i-understood',    kana:'わかりました。', kanji:null, meanings:['I\u2019ve understood'],  note:'', type:'expression', tags:['ch7'] },
+  { id:'im-back',         kana:'ただいま。', kanji:null,   meanings:['I\u2019m back'],          note:'', type:'expression', tags:['ch7','greeting'] },
+  { id:'thank-you-very-much', kana:'どうもありがとうございました。', kanji:null, meanings:['Thank you very much'], note:'', type:'expression', tags:['ch7','greeting'] },
+
+  /* ---------------- CHAPTER 8 ---------------- */
+
+  // Verbs
+  { id:'end',             kana:'おわる', kanji:'終わる', meanings:['to end'],                 note:'', type:'vocab', tags:['ch8','verb'] },
+  { id:'be-tired',        kana:'つかれる', kanji:'疲れる', meanings:['to be tired'],           note:'', type:'vocab', tags:['ch8','verb'] },
+
+  // Adjectives
+  { id:'good-nice',       kana:'いい',   kanji:null,     meanings:['good','nice'],            note:'', type:'vocab', tags:['ch8','adjective','i-adjective'] },
+  { id:'near',            kana:'ちかい', kanji:'近い',   meanings:['near'],                   note:'', type:'vocab', tags:['ch8','adjective','i-adjective'] },
+  { id:'far',             kana:'とおい', kanji:'遠い',   meanings:['far'],                    note:'', type:'vocab', tags:['ch8','adjective','i-adjective'] },
+  { id:'few',             kana:'すくない', kanji:'少ない', meanings:['few'],                   note:'', type:'vocab', tags:['ch8','adjective','i-adjective'] },
+  { id:'many-a-lot',      kana:'おおい', kanji:'多い',   meanings:['many','a lot'],           note:'', type:'vocab', tags:['ch8','adjective','i-adjective'] },
+  { id:'difficult',       kana:'むずかしい', kanji:'難しい', meanings:['difficult'],            note:'', type:'vocab', tags:['ch8','adjective','i-adjective'] },
+  { id:'busy',            kana:'いそがしい', kanji:'忙しい', meanings:['busy'],                 note:'', type:'vocab', tags:['ch8','adjective','i-adjective'] },
+  { id:'kind',            kana:'しんせつ（な）', kanji:'親切（な）', meanings:['kind'],          note:'', type:'vocab', tags:['ch8','adjective','na-adjective'] },
+  { id:'hard-tough',      kana:'たいへん（な）', kanji:'大変（な）', meanings:['hard','tough'],  note:'', type:'vocab', tags:['ch8','adjective','na-adjective'] },
+  { id:'fresh',           kana:'しんせん（な）', kanji:'新鮮（な）', meanings:['fresh'],         note:'', type:'vocab', tags:['ch8','adjective','na-adjective'] },
+  { id:'bustling-lively', kana:'にぎやか（な）', kanji:null, meanings:['bustling','lively'],    note:'', type:'vocab', tags:['ch8','adjective','na-adjective'] },
+  { id:'convenient',      kana:'べんり（な）', kanji:'便利（な）', meanings:['convenient'],      note:'', type:'vocab', tags:['ch8','adjective','na-adjective'] },
+  { id:'inconvenient',    kana:'ふべん（な）', kanji:'不便（な）', meanings:['inconvenient'],    note:'', type:'vocab', tags:['ch8','adjective','na-adjective'] },
+  { id:'free-have-time',  kana:'ひま（な）', kanji:'暇（な）', meanings:['free (have time)'],   note:'', type:'vocab', tags:['ch8','adjective','na-adjective'] },
+
+  // Nouns & others
+  { id:'counter-people',  kana:'（～）にん', kanji:'（～）人', meanings:['(~) people'],         note:'e.g. 5\u4e07\u4eba = 50,000 people', type:'vocab', tags:['ch8','counter'] },
+  { id:'person',          kana:'ひと',   kanji:'人',     meanings:['person'],                 note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'trip-travel-tour', kana:'りょこう', kanji:'旅行', meanings:['trip','travel','tour'],   note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'airport',         kana:'くうこう', kanji:'空港', meanings:['airport'],                note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'counter-hours',   kana:'～じかん', kanji:'～時間', meanings:['~ hours'],               note:'', type:'vocab', tags:['ch8','counter','time'] },
+  { id:'counter-days',    kana:'～にちかん', kanji:'～日間', meanings:['~ days'],              note:'', type:'vocab', tags:['ch8','counter','time'] },
+  { id:'counter-weeks',   kana:'～しゅうかん', kanji:'～週間', meanings:['~ weeks'],           note:'', type:'vocab', tags:['ch8','counter','time'] },
+  { id:'counter-months',  kana:'～かげつ', kanji:'～か月', meanings:['~ months'],              note:'', type:'vocab', tags:['ch8','counter','time'] },
+  { id:'counter-years',   kana:'～ねん', kanji:'～年',   meanings:['~ years'],                note:'', type:'vocab', tags:['ch8','counter','time'] },
+  { id:'half-a-year',     kana:'はんとし', kanji:'半年',  meanings:['half a year'],            note:'', type:'vocab', tags:['ch8','noun','time'] },
+  { id:'time-ago',        kana:'（～）まえ', kanji:'（～）前', meanings:['(~) ago'],           note:'e.g. 1\u304b\u6708\u524d = one month ago', type:'vocab', tags:['ch8','time'] },
+  { id:'around-when',     kana:'いつごろ', kanji:null,   meanings:['around when'],            note:'', type:'vocab', tags:['ch8','question','time'] },
+  { id:'ticket',          kana:'きっぷ', kanji:'切符',   meanings:['ticket'],                 note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'how-long',        kana:'どのぐらい／いくら', kanji:null, meanings:['for how long'],    note:'', type:'vocab', tags:['ch8','question'] },
+  { id:'how',             kana:'どう',   kanji:null,     meanings:['how'],                    note:'', type:'vocab', tags:['ch8','question'] },
+  { id:'how-was',         kana:'どうでしたか', kanji:null, meanings:['how was...?'],           note:'', type:'expression', tags:['ch8','question'] },
+  { id:'a-little',        kana:'すこし', kanji:'少し',   meanings:['a little'],               note:'', type:'vocab', tags:['ch8','adverb'] },
+  { id:'many-a-lot-of',   kana:'たくさん', kanji:null,   meanings:['many','a lot (of)'],      note:'', type:'vocab', tags:['ch8','adverb'] },
+  { id:'a-little-somewhat', kana:'ちょっと', kanji:null, meanings:['a little','somewhat'],    note:'informal', type:'vocab', tags:['ch8','adverb'] },
+  { id:'very',            kana:'とても', kanji:null,     meanings:['very'],                   note:'', type:'vocab', tags:['ch8','adverb'] },
+  { id:'weather',         kana:'てんき', kanji:'天気',   meanings:['weather'],                note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'tokyo',           kana:'とうきょう', kanji:'東京', meanings:['Tokyo'],                 note:'', type:'vocab', tags:['ch8','noun','location'] },
+  { id:'sea',             kana:'うみ',   kanji:'海',     meanings:['sea'],                    note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'mountain',        kana:'やま',   kanji:'山',     meanings:['mountain'],               note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'dance',           kana:'ダンス', kanji:null,     meanings:['dance'],                  note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'place',           kana:'ところ', kanji:'所',     meanings:['place'],                  note:'', type:'vocab', tags:['ch8','noun','location'] },
+  { id:'all',             kana:'ぜんぶ', kanji:'全部',   meanings:['all'],                    note:'', type:'vocab', tags:['ch8'] },
+  { id:'food',            kana:'たべもの', kanji:'食べ物', meanings:['food'],                  note:'', type:'vocab', tags:['ch8','noun','food'] },
+  { id:'chocolate',       kana:'チョコレート', kanji:null, meanings:['chocolate'],             note:'', type:'vocab', tags:['ch8','noun','food'] },
+  { id:'meat',            kana:'にく',   kanji:'肉',     meanings:['meat'],                   note:'', type:'vocab', tags:['ch8','noun','food'] },
+  { id:'fish',            kana:'さかな', kanji:'魚',     meanings:['fish'],                   note:'', type:'vocab', tags:['ch8','noun','food'] },
+  { id:'sashimi',         kana:'さしみ', kanji:null,     meanings:['sashimi'],                note:'', type:'vocab', tags:['ch8','noun','food'] },
+  { id:'japanese-cuisine', kana:'にほんりょうり', kanji:'日本料理', meanings:['Japanese cuisine'], note:'', type:'vocab', tags:['ch8','noun','food'] },
+  { id:'china',           kana:'ちゅうごく', kanji:'中国', meanings:['China'],                 note:'', type:'vocab', tags:['ch8','noun','country'] },
+  { id:'apartment',       kana:'アパート', kanji:null,   meanings:['apartment'],              note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'party',           kana:'パーティー', kanji:null, meanings:['party'],                  note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'souvenir',        kana:'（お）みやげ', kanji:'（お）土産', meanings:['souvenir'],       note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'before-previously', kana:'まえ［いぜん］', kanji:'前［以前］', meanings:['before','last time','previously'], note:'', type:'vocab', tags:['ch8','time'] },
+  { id:'at-present-recently', kana:'いま［さいきん］', kanji:'今［最近］', meanings:['at present','recently'], note:'', type:'vocab', tags:['ch8','time'] },
+  { id:'malaysia',        kana:'マレーシア', kanji:null, meanings:['Malaysia'],               note:'', type:'vocab', tags:['ch8','noun','country'] },
+  { id:'journalist',      kana:'きしゃ', kanji:'記者',   meanings:['journalist','reporter'],  note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'reservation',     kana:'よやく', kanji:'予約',   meanings:['reservation'],            note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'airplane',        kana:'ひこうき', kanji:'飛行機', meanings:['airplane'],              note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'basketball',      kana:'バスケットボール', kanji:null, meanings:['basketball'],        note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'menu',            kana:'メニュー', kanji:null,   meanings:['menu'],                   note:'', type:'vocab', tags:['ch8','noun'] },
+  { id:'rain',            kana:'あめ',   kanji:'雨',     meanings:['rain'],                   note:'', type:'vocab', tags:['ch8','noun'] },
+
+  /* ---------------- CHAPTER 9 ---------------- */
+
+  // Verbs
+  { id:'teach-show-tell', kana:'おしえる', kanji:'教える', meanings:['to teach','to show, tell'], note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'make',            kana:'つくる', kanji:'作る',   meanings:['to make'],                note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'speak',           kana:'はなす', kanji:'話す',   meanings:['to speak'],               note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'call',            kana:'よぶ',   kanji:'呼ぶ',   meanings:['to call'],                note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'make-noise',      kana:'さわぐ', kanji:'騒ぐ',   meanings:['to make noise','to be rowdy'], note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'say',             kana:'いう',   kanji:'言う',   meanings:['to say'],                 note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'hold-carry',      kana:'もつ',   kanji:'持つ',   meanings:['to hold','to carry'],     note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'bring-take-along', kana:'もっていく', kanji:'持って行く', meanings:['to bring','to take along (something)'], note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'help-someone',    kana:'てつだう', kanji:'手伝う', meanings:['to help someone do something', 'to lend a hand'], note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'put-place',       kana:'おく',   kanji:'置く',   meanings:['to put','to place'],      note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'die',             kana:'しぬ',   kanji:'死ぬ',   meanings:['to die'],                 note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'take-get-pass',   kana:'とる',   kanji:'取る',   meanings:['to take','to get','to pass'], note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'come-back',       kana:'かえってくる', kanji:'帰って来る', meanings:['to come back'],  note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'be-late',         kana:'おくれる', kanji:'遅れる', meanings:['to be late'],            note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'use',             kana:'つかう', kanji:'使う',   meanings:['to use'],                 note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'take-photograph', kana:'（しゃしんを）とる', kanji:'撮る', meanings:['to take (a photograph)'], note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'take-a-bath',     kana:'（おふろに）はいる', kanji:'（おふろに）入る', meanings:['to enter (= to take a bath)'], note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'put-into',        kana:'いれる', kanji:'入れる', meanings:['to put (something) into (somewhere)','to input (a name)','to include (someone)'], note:'', type:'vocab', tags:['ch9','ch11','verb'] },
+  { id:'push',            kana:'おす',   kanji:'押す',   meanings:['to push'],                note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'swim',            kana:'およぐ', kanji:'泳ぐ',   meanings:['to swim'],                note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'open-something',  kana:'あける', kanji:'開ける', meanings:['to open (something)'],    note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'sit',             kana:'すわる', kanji:'座る',   meanings:['to sit'],                 note:'', type:'vocab', tags:['ch9','verb'] },
+  { id:'explain',         kana:'せつめい（を）する', kanji:'説明（を）する', meanings:['to explain'], note:'', type:'vocab', tags:['ch9','verb','v3'] },
+  { id:'play-games',      kana:'ゲーム（を）する', kanji:null, meanings:['to play games'],     note:'', type:'vocab', tags:['ch9','verb','v3'] },
+
+  // Nouns & others
+  { id:'explanation',     kana:'せつめい', kanji:'説明',  meanings:['explanation'],            note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'rules',           kana:'きそく', kanji:'規則',   meanings:['rules'],                  note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'voice',           kana:'こえ',   kanji:'声',     meanings:['voice'],                  note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'drink-beverage',  kana:'のみもの', kanji:'飲み物', meanings:['drink','beverage'],       note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'photograph',      kana:'しゃしん', kanji:'写真',  meanings:['photograph'],             note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'magazine',        kana:'ざっし', kanji:'雑誌',   meanings:['magazine'],               note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'bookshelf',       kana:'ほんだな', kanji:'本棚',  meanings:['bookshelf'],              note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'map',             kana:'ちず',   kanji:'地図',   meanings:['map'],                    note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'shower',          kana:'シャワー', kanji:null,   meanings:['shower'],                 note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'when-doing',      kana:'（～の）とき', kanji:'（～の）時', meanings:['when (~)'],       note:'e.g. \u30c6\u30b9\u30c8\u306e\u3068\u304d = when (taking) the test', type:'vocab', tags:['ch9'] },
+  { id:'how-to-method',   kana:'（～）かた', kanji:'（～）方', meanings:['how to (~)','method of (~ing)'], note:'', type:'vocab', tags:['ch9'] },
+  { id:'kimono',          kana:'きもの', kanji:'着物',   meanings:['kimono'],                 note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'fashion',         kana:'ファッション', kanji:null, meanings:['fashion'],               note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'computer-katakana', kana:'コンピューター', kanji:null, meanings:['computer'],          note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'game',            kana:'ゲーム', kanji:null,     meanings:['game'],                   note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'a-button',        kana:'ボタン', kanji:null,     meanings:['a button'],               note:'', type:'vocab', tags:['ch9','noun'] },
+  { id:'together',        kana:'いっしょに', kanji:null, meanings:['together'],               note:'', type:'vocab', tags:['ch9','adverb'] },
+  { id:'first-of-all',    kana:'まず',   kanji:null,     meanings:['first of all'],           note:'', type:'vocab', tags:['ch9','adverb'] },
+  { id:'from-now-on',     kana:'これから', kanji:null,   meanings:['from now on'],            note:'', type:'vocab', tags:['ch9'] },
+  { id:'one-more-time',   kana:'もういちど', kanji:'もう一度', meanings:['one more time'],      note:'', type:'vocab', tags:['ch9'] },
+  { id:'somewhere',       kana:'どこか', kanji:null,     meanings:['somewhere'],              note:'', type:'vocab', tags:['ch9','question'] },
+  { id:'something',       kana:'なにか', kanji:'何か',   meanings:['something'],              note:'', type:'vocab', tags:['ch9','question'] },
+  { id:'shall-i-help',    kana:'てつだいましょうか', kanji:'手伝いましょうか', meanings:['Shall I help you/give you a hand?'], note:'', type:'expression', tags:['ch9'] },
+  { id:'thank-you-very-much-2', kana:'どうもすみません', kanji:null, meanings:['Thank you very much'], note:'', type:'expression', tags:['ch9','greeting'] },
+  { id:'please-do',       kana:'おねがいします', kanji:'お願いします', meanings:['please do'],  note:'', type:'expression', tags:['ch9','greeting'] },
+
+  /* ---------------- CHAPTER 10 ---------------- */
+
+  // Verbs
+  { id:'leave',           kana:'でる',   kanji:'出る',   meanings:['to leave'],               note:'', type:'vocab', tags:['ch10','verb'] },
+  { id:'reach',           kana:'つく',   kanji:'着く',   meanings:['to reach'],               note:'', type:'vocab', tags:['ch10','verb'] },
+  { id:'get-off-alight',  kana:'おりる', kanji:'降りる', meanings:['to get off','alight'],    note:'', type:'vocab', tags:['ch10','verb'] },
+  { id:'ride-board',      kana:'のる',   kanji:'乗る',   meanings:['to ride','to board'],     note:'', type:'vocab', tags:['ch10','verb'] },
+  { id:'take-time',       kana:'（じかんが）かかる', kanji:'（時間が）かかる', meanings:['to take (time)'], note:'', type:'vocab', tags:['ch10','verb'] },
+  { id:'walk',            kana:'あるく', kanji:'歩く',   meanings:['to walk'],                note:'', type:'vocab', tags:['ch10','verb'] },
+  { id:'go-by-walking',   kana:'（～へ）あるいていく', kanji:'（～へ）歩いて行く', meanings:['to go (to a place) by walking'], note:'', type:'vocab', tags:['ch10','verb'] },
+  { id:'change-transport', kana:'のりかえる', kanji:'（バスに）乗り換える', meanings:['to change (buses, trains etc.)'], note:'', type:'vocab', tags:['ch10','verb'] },
+  { id:'depart',          kana:'しゅっぱつする', kanji:'出発する', meanings:['to depart'],      note:'', type:'vocab', tags:['ch10','verb','v3'] },
+  { id:'sing',            kana:'うたう', kanji:'歌う',   meanings:['to sing'],                note:'', type:'vocab', tags:['ch10','verb'] },
+  { id:'make-phone-call', kana:'でんわ（を）する', kanji:'電話（を）する', meanings:['to make a phone call'], note:'', type:'vocab', tags:['ch10','verb','v3'] },
+
+  // Nouns & others
+  { id:'plan-schedule',   kana:'よてい', kanji:'予定',   meanings:['plan','schedule'],        note:'', type:'vocab', tags:['ch10','noun'] },
+  { id:'train',           kana:'でんしゃ', kanji:'電車', meanings:['train'],                  note:'', type:'vocab', tags:['ch10','noun'] },
+  { id:'subway',          kana:'ちかてつ', kanji:'地下鉄', meanings:['subway'],                note:'', type:'vocab', tags:['ch10','noun'] },
+  { id:'bicycle',         kana:'じてんしゃ', kanji:'自転車', meanings:['bicycle'],              note:'', type:'vocab', tags:['ch10','noun'] },
+  { id:'every-morning',   kana:'まいあさ', kanji:'毎朝',  meanings:['every morning'],          note:'', type:'vocab', tags:['ch10','noun','time'] },
+  { id:'very-soon',       kana:'もうすぐ', kanji:null,   meanings:['very soon','any time now'], note:'', type:'vocab', tags:['ch10','adverb'] },
+  { id:'side-width',      kana:'よこ',   kanji:'横',     meanings:['side','horizontal','width'], note:'', type:'vocab', tags:['ch10','noun','location'] },
+  { id:'how-to-do',       kana:'どうやって', kanji:null, meanings:['how'],                    note:'asks about the method or means of doing something', type:'vocab', tags:['ch10','question'] },
+  { id:'shinkansen',      kana:'しんかんせん', kanji:'新幹線', meanings:['Shinkansen bullet train'], note:'', type:'vocab', tags:['ch10','noun'] },
+
+  /* ---------------- CHAPTER 11 ---------------- */
+
+  // Verbs
+  { id:'live-in',         kana:'（よこはまに）すむ', kanji:'（横浜に）住む', meanings:['to live (in a place)'], note:'example given with Yokohama', type:'vocab', tags:['ch11','verb'] },
+  { id:'graduate',        kana:'そつぎょうする', kanji:'卒業する', meanings:['to graduate'],   note:'', type:'vocab', tags:['ch11','verb','v3'] },
+  { id:'be-employed-at',  kana:'つとめる', kanji:'勤める', meanings:['to be employed (at)'],   note:'', type:'vocab', tags:['ch11','verb'] },
+  { id:'quit-resign',     kana:'（かいしゃを）やめる', kanji:'（会社を）辞める', meanings:['to quit','to resign'], note:'', type:'vocab', tags:['ch11','verb'] },
+  { id:'have-interest-in', kana:'（きょうみが）ある', kanji:'（興味が）ある', meanings:['to have (interest in)'], note:'', type:'vocab', tags:['ch11','verb'] },
+  { id:'get-married',     kana:'けっこんする', kanji:'結婚する', meanings:['to get married'],   note:'', type:'vocab', tags:['ch11','verb','v3'] },
+  { id:'study-abroad',    kana:'りゅうがくする', kanji:'留学する', meanings:['to study abroad'], note:'', type:'vocab', tags:['ch11','verb','v3'] },
+  { id:'do-homework',     kana:'しゅくだい（を）する', kanji:'宿題（を）する', meanings:['to do homework'], note:'', type:'vocab', tags:['ch11','verb','v3'] },
+  { id:'submit-homework', kana:'（しゅくだいを）だす', kanji:'（宿題を）出す', meanings:['to hand in','to submit (homework)'], note:'', type:'vocab', tags:['ch11','verb'] },
+  { id:'play',            kana:'あそぶ', kanji:'遊ぶ',   meanings:['to play'],                note:'', type:'vocab', tags:['ch11','verb'] },
+  { id:'become',          kana:'（デザイナーに）なる', kanji:null, meanings:['to become (something)'], note:'example given with designer', type:'vocab', tags:['ch11','verb'] },
+  { id:'decide',          kana:'きめる', kanji:'決める', meanings:['to decide'],              note:'', type:'vocab', tags:['ch11','verb'] },
+  { id:'enter-admit-school', kana:'（がっこうに）はいる', kanji:'（学校に）入る', meanings:['to enter, to gain admittance to (a school)'], note:'', type:'vocab', tags:['ch11','verb'] },
+  { id:'discuss',         kana:'そうだんする', kanji:'相談する', meanings:['to discuss'],       note:'', type:'vocab', tags:['ch11','verb','v3'] },
+  { id:'find-out-check',  kana:'しらべる', kanji:'調べる', meanings:['to find out','to check','to investigate'], note:'', type:'vocab', tags:['ch11','verb'] },
+
+  // Adjectives / grammar patterns
+  { id:'various',         kana:'いろいろ（な）', kanji:null, meanings:['various'],             note:'', type:'vocab', tags:['ch11','adjective','na-adjective'] },
+  { id:'want-to-see',     kana:'（み）たい', kanji:'（見）たい', meanings:['want to see'],      note:'\u305f\u3044 attaches to a verb stem to mean "want to ~"; shown here with \u898b\u308b (to see)', type:'vocab', tags:['ch11','grammar'] },
+
+  // Nouns & others
+  { id:'junior-high-school', kana:'ちゅうがっこう', kanji:'中学校', meanings:['Junior high school (secondary school)'], note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'high-school',     kana:'こうこう', kanji:'高校',  meanings:['high school (=JC, Pre-U)'], note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'high-school-student', kana:'こうこうせい', kanji:'高校生', meanings:['high school student'], note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'part-time-work',  kana:'アルバイト', kanji:null,  meanings:['temporary part-time work'], note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'related-to',      kana:'（～）かんけい', kanji:'（～）関係', meanings:['(~)-related'],   note:'e.g. \u30d5\u30a1\u30c3\u30b7\u30e7\u30f3\u95a2\u4fc2 = fashion-related', type:'vocab', tags:['ch11'] },
+  { id:'interest',        kana:'きょうみ', kanji:'興味',  meanings:['interest'],               note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'clothes',         kana:'ふく',   kanji:'服',     meanings:['clothes'],                note:'', type:'vocab', tags:['ch11','noun','clothing'] },
+  { id:'oneself',         kana:'じぶん', kanji:'自分',   meanings:['one\u2019s self'],         note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'family',          kana:'かぞく', kanji:'家族',   meanings:['(my) family'],            note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'parents',         kana:'りょうしん', kanji:'両親', meanings:['(my) parents'],           note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'siblings',        kana:'きょうだい', kanji:'兄弟', meanings:['(my) brother(s) and sister(s)'], note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'grandfather-my',  kana:'そふ',   kanji:'祖父',   meanings:['(my) grandfather'],       note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'grandmother-my',  kana:'そぼ',   kanji:'祖母',   meanings:['(my) grandmother'],       note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'father-my',       kana:'ちち',   kanji:'父',     meanings:['(my) father'],            note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'mother-my',       kana:'はは',   kanji:'母',     meanings:['(my) mother'],            note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'elder-brother-my', kana:'あに',  kanji:'兄',     meanings:['(my) elder brother'],     note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'elder-sister-my', kana:'あね',   kanji:'姉',     meanings:['(my) elder sister'],      note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'younger-brother-my', kana:'おとうと', kanji:'弟', meanings:['(my) younger brother'],   note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'younger-sister-my', kana:'いもうと', kanji:'妹',  meanings:['(my) younger sister'],    note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'grandfather-someones', kana:'おじいさん', kanji:null, meanings:['(someone\u2019s) grandfather'], note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'grandmother-someones', kana:'おばあさん', kanji:null, meanings:['(someone\u2019s) grandmother'], note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'father-someones', kana:'おとうさん', kanji:'お父さん', meanings:['(someone\u2019s) father'], note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'mother-someones', kana:'おかあさん', kanji:'お母さん', meanings:['(someone\u2019s) mother'], note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'elder-brother-someones', kana:'おにいさん', kanji:'お兄さん', meanings:['(someone\u2019s) elder brother'], note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'elder-sister-someones', kana:'おねえさん', kanji:'お姉さん', meanings:['(someone\u2019s) elder sister'], note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'younger-brother-someones', kana:'おとうとさん', kanji:'弟さん', meanings:['(someone\u2019s) younger brother'], note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'younger-sister-someones', kana:'いもうとさん', kanji:'妹さん', meanings:['(someone\u2019s) younger sister'], note:'', type:'vocab', tags:['ch11','noun','family'] },
+  { id:'ordinal-counter', kana:'～ばんめ', kanji:'～番目', meanings:['~th (number ~)'],         note:'', type:'vocab', tags:['ch11','counter'] },
+  { id:'eldest-sibling',  kana:'いちばんうえ', kanji:'一番上', meanings:['eldest (sibling)'],    note:'', type:'vocab', tags:['ch11','family'] },
+  { id:'youngest-sibling', kana:'いちばんした', kanji:'一番下', meanings:['youngest (sibling)'], note:'', type:'vocab', tags:['ch11','family'] },
+  { id:'older-oldest-sister', kana:'うえのあね', kanji:'上の姉', meanings:['older/oldest (sister)'], note:'', type:'vocab', tags:['ch11','family'] },
+  { id:'younger-youngest-brother', kana:'したのおとうと', kanji:'下の弟', meanings:['younger/youngest (brother)'], note:'', type:'vocab', tags:['ch11','family'] },
+  { id:'one-person',      kana:'ひとり', kanji:'一人',   meanings:['one person'],             note:'', type:'vocab', tags:['ch11','counter'] },
+  { id:'two-people',      kana:'ふたり', kanji:'二人',   meanings:['two people'],             note:'', type:'vocab', tags:['ch11','counter'] },
+  { id:'piano',           kana:'ピアノ', kanji:null,     meanings:['piano'],                  note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'concert',         kana:'コンサート', kanji:null, meanings:['concert'],                note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'karaoke',         kana:'カラオケ', kanji:null,   meanings:['karaoke'],                note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'walk-stroll',     kana:'さんぽ', kanji:'散歩',   meanings:['a walk','a stroll'],      note:'', type:'vocab', tags:['ch11','noun'] },
+  { id:'weekend',         kana:'しゅうまつ', kanji:'週末', meanings:['weekend'],               note:'', type:'vocab', tags:['ch11','noun','time'] },
+  { id:'in-future',       kana:'しょうらい', kanji:'将来', meanings:['in future'],             note:'', type:'vocab', tags:['ch11','noun','time'] },
+  { id:'already',         kana:'もう',   kanji:null,     meanings:['already'],                note:'', type:'vocab', tags:['ch11','adverb'] },
+  { id:'not-yet',         kana:'まだ',   kanji:null,     meanings:['(not) yet'],              note:'', type:'vocab', tags:['ch11','adverb'] },
+  { id:'exactly-definitely', kana:'はっきり', kanji:null, meanings:['exactly','definitely'],   note:'', type:'vocab', tags:['ch11','adverb'] },
+  { id:'just-a-little-more', kana:'もう（すこし）', kanji:'もう（少し）', meanings:['just (a little) more'], note:'', type:'vocab', tags:['ch11','adverb'] },
+  { id:'hokkaido',        kana:'ほっかいどう', kanji:'北海道', meanings:['Hokkaido'],           note:'', type:'vocab', tags:['ch11','noun','location'] },
+  { id:'osaka',           kana:'おおさか', kanji:'大阪',  meanings:['Osaka'],                  note:'', type:'vocab', tags:['ch11','noun','location'] },
+  { id:'france',          kana:'フランス', kanji:null,   meanings:['France'],                 note:'', type:'vocab', tags:['ch11','noun','country'] },
+  { id:'england',         kana:'イギリス', kanji:null,   meanings:['England','the United Kingdom'], note:'', type:'vocab', tags:['ch11','noun','country'] },
+  { id:'america',         kana:'アメリカ', kanji:null,   meanings:['America','the United States'], note:'', type:'vocab', tags:['ch11','noun','country'] },
+  { id:'australia',       kana:'オーストラリア', kanji:null, meanings:['Australia'],           note:'', type:'vocab', tags:['ch11','noun','country'] },
+
+];
+
+/* ================================================================
+   HELPERS — generate flashcards / quizzes / lesson tables from the
+   list above. Reusable across chapters; nothing here is
+   chapter-specific.
+   ================================================================ */
+
+// All entries tagged with a given chapter (or any tag)
+function vocabByTag(tag, list){
+  return (list || VOCAB_JAPANESE).filter(e => e.tags.includes(tag));
+}
+
+// Convert one vocab entry into the site's {furigana, kanji, english} flashcard shape
+function vocabToFlashcard(entry){
+  return {
+    furigana: entry.kana,
+    kanji: entry.kanji || entry.kana,
+    english: entry.meanings.length ? entry.meanings.join(' / ') : '(translation pending)'
+  };
+}
+
+// Build a flashcard deck for a whole chapter/tag in one call
+function vocabToFlashcardDeck(tag, list){
+  return vocabByTag(tag, list).map(vocabToFlashcard);
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function sample(arr, n){
+  return shuffle(arr).slice(0, n);
+}
+
+// Build one multiple-choice quiz question from a vocab entry, drawing
+// wrong-answer options from the rest of the pool.
+function vocabToQuizQuestion(entry, pool, numOptions){
+  numOptions = numOptions || 4;
+  const correct = entry.meanings[0];
+  const distractorPool = pool
+    .filter(e => e.id !== entry.id && e.meanings.length && e.meanings[0] !== correct)
+    .map(e => e.meanings[0]);
+  const wrongCount = Math.min(numOptions - 1, distractorPool.length);
+  const options = shuffle([correct, ...sample(distractorPool, wrongCount)]);
+  return {
+    type: 'mc',
+    q: 'What does ' + (entry.kanji || entry.kana) + ' mean?',
+    options,
+    answer: options.indexOf(correct)
+  };
+}
+
+// Build a full quiz for a chapter/tag in one call. Skips entries with
+// no meanings yet (nothing to quiz on) and entries where there
+// aren't enough other words to build distractor options from.
+function vocabToQuiz(tag, list, numOptions){
+  const pool = list || VOCAB_JAPANESE;
+  const chapterEntries = vocabByTag(tag, pool).filter(e => e.meanings.length);
+  return chapterEntries
+    .filter(() => pool.filter(e => e.meanings.length).length >= 4)
+    .map(entry => vocabToQuizQuestion(entry, pool, numOptions));
+}
+
+// Simple HTML vocab table for a chapter/tag — a reasonable default
+// lesson "content" block, until real notes/grammar are written.
+function vocabToLessonHtml(tag, list){
+  const entries = vocabByTag(tag, list);
+  if(!entries.length) return '';
+  const rows = entries.map(e => `
+    <tr>
+      <td style="font-family:'Noto Sans JP',sans-serif; font-size:1.1rem; white-space:nowrap;">${e.kana}</td>
+      <td style="font-family:'Noto Sans JP',sans-serif; font-size:1.1rem; white-space:nowrap;">${e.kanji || '\u2014'}</td>
+      <td>${e.meanings.length ? e.meanings.join(' / ') : '<em>(translation pending)</em>'}${e.note ? '<br><small style="color:#4B5A68;">' + e.note + '</small>' : ''}</td>
+    </tr>`).join('');
+  return `
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="text-align:left; border-bottom:2px solid #D9D4C4;">
+          <th style="padding:6px 10px 6px 0;">Reading</th>
+          <th style="padding:6px 10px;">Word</th>
+          <th style="padding:6px 10px;">Meaning</th>
+        </tr>
+      </thead>
+      <tbody>${rows.replace(/<td/g, '<td style="padding:8px 10px; border-bottom:1px solid #EAE7DC;"')}</tbody>
+    </table>`;
+}
+
+// Expose everything on window in case other inline scripts want to
+// reference this data directly.
+if(typeof window !== 'undefined'){
+  window.VOCAB_JAPANESE = VOCAB_JAPANESE;
+  window.vocabByTag = vocabByTag;
+  window.vocabToFlashcard = vocabToFlashcard;
+  window.vocabToFlashcardDeck = vocabToFlashcardDeck;
+  window.vocabToQuizQuestion = vocabToQuizQuestion;
+  window.vocabToQuiz = vocabToQuiz;
+  window.vocabToLessonHtml = vocabToLessonHtml;
+}
+
+</script>
+<script>
+/* ================================================================
    STUDY DESK — DATA MODEL
    ----------------------------------------------------------------
    Everything you'll want to edit later (chapters, lesson content,
@@ -464,20 +1200,39 @@ Object.assign(DATA.math.chapters[0], {
   ]
 });
 
-// Japanese > Chapter 0
-Object.assign(DATA.japanese.chapters[0], {
-  content: `<p><strong>Chapter 0</strong> is usually a good place for hiragana / orientation basics.
-  Replace this text with your own lesson content in <code>DATA.japanese.chapters[0].content</code>.</p>`,
-  quiz: [
-    { type:'mc', q:'How do you say "thank you" in Japanese?', options:['\u3055\u3088\u3046\u306a\u3089','\u3042\u308a\u304c\u3068\u3046','\u304a\u306f\u3088\u3046','\u3054\u3081\u3093\u306a\u3055\u3044'], answer:1 }
-  ],
-  flashcards: [
-    { furigana:'\u3042\u308a\u304c\u3068\u3046', kanji:'\u6709\u308a\u96e3\u3046', english:'thank you' },
-    { furigana:'\u3053\u3093\u306b\u3061\u306f', kanji:'\u4eca\u65e5\u306f', english:'hello / good afternoon' },
-    { furigana:'\u3055\u3088\u3046\u306a\u3089', kanji:'\u3055\u3088\u3046\u306a\u3089', english:'goodbye' },
-    { furigana:'\u306f\u3058\u3081\u307e\u3057\u3066', kanji:'\u521d\u3081\u307e\u3057\u3066', english:'nice to meet you' }
-  ]
-});
+// Japanese > Chapters 0-6, auto-populated from vocab-japanese.js
+// (load order: vocab-japanese.js must be included before this script tag)
+if(typeof window.VOCAB_JAPANESE !== 'undefined'){
+  DATA.japanese.chapters.forEach(ch => {
+    const tag = ch.id; // 'ch0', 'ch1', ... matches the tags used in vocab-japanese.js
+    const deckEntries = window.vocabByTag(tag);
+    if(!deckEntries.length) return; // chapters 7-11 have no vocab yet — leave as empty placeholders
+
+    ch.content = `
+      <p>Vocabulary for this chapter, generated from <code>vocab-japanese.js</code>.
+      Add lesson notes, grammar points, or example sentences above this table by editing
+      <code>ch.content</code> for this chapter in the script, or by extending
+      <code>vocabToLessonHtml()</code> in the vocab file.</p>
+      ${window.vocabToLessonHtml(tag)}`;
+    ch.flashcards = window.vocabToFlashcardDeck(tag);
+    ch.quiz = window.vocabToQuiz(tag);
+  });
+} else {
+  // Fallback sample so the site still demonstrates working end-to-end
+  // if vocab-japanese.js hasn't been added yet.
+  Object.assign(DATA.japanese.chapters[0], {
+    content: `<p><strong>Chapter 0</strong> is usually a good place for hiragana / orientation basics.
+    Add <code>vocab-japanese.js</code> alongside this file to auto-populate every Japanese chapter,
+    or edit <code>DATA.japanese.chapters[0].content</code> directly.</p>`,
+    quiz: [
+      { type:'mc', q:'How do you say "thank you" in Japanese?', options:['\u3055\u3088\u3046\u306a\u3089','\u3042\u308a\u304c\u3068\u3046','\u304a\u306f\u3088\u3046','\u3054\u3081\u3093\u306a\u3055\u3044'], answer:1 }
+    ],
+    flashcards: [
+      { furigana:'\u3042\u308a\u304c\u3068\u3046', kanji:'\u6709\u308a\u96e3\u3046', english:'thank you' },
+      { furigana:'\u3053\u3093\u306b\u3061\u306f', kanji:'\u4eca\u65e5\u306f', english:'hello / good afternoon' }
+    ]
+  });
+}
 
 // Chinese > Unit 1 > 生活空间 (shenghuo)
 (function(){
